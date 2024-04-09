@@ -3,7 +3,7 @@ import web3
 
 import os
 import json
-
+import random
 
 class SCDeployer:
 
@@ -53,6 +53,27 @@ class SCDeployer:
     def __report_balance(self):
         print(f"Current Balance: {self.__client.eth.get_balance(self.__client.eth.default_account)}")
 
+    def __transact(self, contract, args):
+        print("[+]Transacting...")
+        try:
+            raw_tx = contract.constructor(*args).build_transaction({
+                "gasPrice": self.__gas_price,
+                "from": self.__client.eth.default_account,
+                "nonce": self.__client.eth.get_transaction_count(self.__client.eth.default_account)
+            })
+
+            signed_tx = self.__client.eth.account.sign_transaction(raw_tx, self.__private_key)
+
+            tx_hash = self.__client.eth.send_raw_transaction(signed_tx.rawTransaction)
+            print("[+]Waiting for Transaction...")
+            tx_receipt = self.__client.eth.wait_for_transaction_receipt(tx_hash)
+            return tx_receipt
+        
+        except ValueError as ex:
+            print(f"[-]Value Error: {ex}")
+            print("[+]Retrying...")
+            return self.__transact(contract, args)
+
 
     def deploy(self, contract_name: str, args):
         print("[+]Starting Deployment...")
@@ -66,17 +87,8 @@ class SCDeployer:
             bytecode=contract_bytecode
         )
 
-        raw_tx = contract.constructor(*args).build_transaction({
-            "gasPrice": self.__gas_price,
-            "from": self.__client.eth.default_account,
-            "nonce": self.__client.eth.get_transaction_count(self.__client.eth.default_account)
-        })
-
-        signed_tx = self.__client.eth.account.sign_transaction(raw_tx, self.__private_key)
-
-        tx_hash = self.__client.eth.send_raw_transaction(signed_tx.rawTransaction)
-        tx_receipt = self.__client.eth.wait_for_transaction_receipt(tx_hash)
-
+        tx_receipt = self.__transact(contract, args)
+        
         print("[+]Deployment Complete...")
         self.__report_balance()
 
