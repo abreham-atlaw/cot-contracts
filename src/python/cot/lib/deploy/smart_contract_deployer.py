@@ -53,13 +53,15 @@ class SCDeployer:
     def __report_balance(self):
         print(f"Current Balance: {self.__client.eth.get_balance(self.__client.eth.default_account)}")
 
-    def __transact(self, contract, args):
+    def __transact(self, contract, args, nonce=None):
+        if nonce is None:
+            nonce = self.__client.eth.get_transaction_count(self.__client.eth.default_account)
         print("[+]Transacting...")
         try:
             raw_tx = contract.constructor(*args).build_transaction({
                 "gasPrice": self.__gas_price,
                 "from": self.__client.eth.default_account,
-                "nonce": self.__client.eth.get_transaction_count(self.__client.eth.default_account)
+                "nonce": nonce
             })
 
             signed_tx = self.__client.eth.account.sign_transaction(raw_tx, self.__private_key)
@@ -72,7 +74,7 @@ class SCDeployer:
         except ValueError as ex:
             print(f"[-]Value Error: {ex}")
             print("[+]Retrying...")
-            return self.__transact(contract, args)
+            return self.__transact(contract, args, nonce+1)
 
 
     def deploy(self, contract_name: str, args):

@@ -22,6 +22,12 @@ contract Profile {
         profileCount++;
     }
 
+    function getById(string memory _id) public view returns (ProfileStruct memory) {
+        uint idx = idMap[_id];
+        ProfileStruct memory profile = profiles[idx];
+        return profile;
+    }
+
     function getProfileByUserKey(string memory _userKey) public view returns (ProfileStruct memory) {
         uint idx = idMap[_userKey];
         ProfileStruct memory profile = profiles[idx];

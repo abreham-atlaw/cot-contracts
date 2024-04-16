@@ -8,7 +8,7 @@ DEPLOY_DIR = os.path.join(BUILD_DIR, "deploy/")
 SOLIDITY_DIR = os.path.join(BUILD_DIR, "solidity/")
 
 
-KEYSTORE_PATH = os.path.join(BASE_DIR, "data/node0/keystore/UTC--2024-04-02T05-47-18.499109993Z--5b499c99a0ee0bc43a40d13ddd70e06215b41683")
+KEYSTORE_PATH = os.path.join(BASE_DIR, "data/node3/keystore/UTC--2024-04-13T16-53-52.640165587Z--f73d10dd4541e3e27b4ab319349fbcdbd9421f0f")
 KEYSTORE_PASSWORD = "temppasswd" # TODO:MOVE THIS TO ENVIRNONMENT
 
 GAS_PRICE = 0
