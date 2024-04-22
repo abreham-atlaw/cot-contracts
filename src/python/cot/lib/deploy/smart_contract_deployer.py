@@ -51,7 +51,7 @@ class SCDeployer:
             return file.read()
 
     def __report_balance(self):
-        print(f"Current Balance: {self.__client.eth.get_balance(self.__client.eth.default_account)}")
+        print(f"[+]Current Balance: {self.__client.eth.get_balance(self.__client.eth.default_account)}")
 
     def __transact(self, contract, args, nonce=None):
         if nonce is None:
