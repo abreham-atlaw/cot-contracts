@@ -9,6 +9,7 @@ contract Invitation {
         string id;
         string to;
         string orgId;
+        bool is_active;
     }
 
     mapping(string => uint) public idMap;
@@ -16,7 +17,7 @@ contract Invitation {
     uint invitationCount;
 
     function create(uint _role, string memory _id, string memory _to, string memory _orgId) public {
-        invitations.push(InvitationStruct(_role, _id, _to, _orgId));
+        invitations.push(InvitationStruct(_role, _id, _to, _orgId, true));
         idMap[_id] = invitationCount;
         invitationCount++;
     }
@@ -28,7 +29,22 @@ contract Invitation {
     }
 
     function getAll() public view returns (InvitationStruct[] memory) {
-        return invitations;
+        uint activeCount = 0;
+        for (uint i = 0; i < invitationCount; i++) {
+            if (invitations[i].is_active) {
+                activeCount++;
+            }
+        }
+
+        InvitationStruct[] memory activeInvitations = new InvitationStruct[](activeCount);
+        uint j = 0;
+        for (uint i = 0; i < invitationCount; i++) {
+            if (invitations[i].is_active) {
+                activeInvitations[j] = invitations[i];
+                j++;
+            }
+        }
+        return activeInvitations;
     }
 
     function update(uint _role, string memory _id, string memory _to, string memory _orgId) public {
@@ -38,5 +54,10 @@ contract Invitation {
         invitation.id = _id;
         invitation.to = _to;
         invitation.orgId = _orgId;
+    }
+
+    function deleteInstance(string memory _id) public {
+        uint idx = idMap[_id];
+        invitations[idx].is_active = false;
     }
 }
