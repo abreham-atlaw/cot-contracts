@@ -9,6 +9,7 @@ contract Invitation {
         string id;
         string to;
         string orgId;
+        string name;
         bool is_active;
     }
 
@@ -16,8 +17,8 @@ contract Invitation {
     InvitationStruct[] invitations;
     uint invitationCount;
 
-    function create(uint _role, string memory _id, string memory _to, string memory _orgId) public {
-        invitations.push(InvitationStruct(_role, _id, _to, _orgId, true));
+    function create(uint _role, string memory _id, string memory _to, string memory _orgId, string memory _name) public {
+        invitations.push(InvitationStruct(_role, _id, _to, _orgId, _name, true));
         idMap[_id] = invitationCount;
         invitationCount++;
     }
@@ -47,13 +48,14 @@ contract Invitation {
         return activeInvitations;
     }
 
-    function update(uint _role, string memory _id, string memory _to, string memory _orgId) public {
+    function update(uint _role, string memory _id, string memory _to, string memory _orgId, string memory _name) public {
         uint idx = idMap[_id];
         InvitationStruct storage invitation = invitations[idx];
         invitation.role = _role;
         invitation.id = _id;
         invitation.to = _to;
         invitation.orgId = _orgId;
+        invitation.name = _name;
     }
 
     function deleteInstance(string memory _id) public {

@@ -8,16 +8,17 @@ contract AssetMaintenanceRequest {
         string assetId;
         string note;
         uint status;
+        string image;
         string userId;
-        bool is_active; // Add is_active field
+        bool is_active; 
     }
 
     mapping(string => uint) public idMap;
     AssetMaintenanceRequestStruct[] assetMaintenanceRequests;
     uint assetMaintenanceRequestCount;
 
-    function create(string memory _id, string memory _assetId, string memory _note, uint _status, string memory _userId) public {
-        assetMaintenanceRequests.push(AssetMaintenanceRequestStruct(_id, _assetId, _note, _status, _userId, true)); // Set is_active to true on creation
+    function create(string memory _id, string memory _assetId, string memory _note, uint _status, string memory _image, string memory _userId) public {
+        assetMaintenanceRequests.push(AssetMaintenanceRequestStruct(_id, _assetId, _note, _status, _image, _userId, true)); // Set is_active to true on creation
         idMap[_id] = assetMaintenanceRequestCount;
         assetMaintenanceRequestCount++;
     }
@@ -47,7 +48,7 @@ contract AssetMaintenanceRequest {
         return activeAssetMaintenanceRequests;
     }
 
-    function update(string memory _id, string memory _assetId, string memory _note, uint _status, string memory _userId) public {
+    function update(string memory _id, string memory _assetId, string memory _note, uint _status, string memory _image, string memory _userId) public {
         uint idx = idMap[_id];
         AssetMaintenanceRequestStruct storage assetMaintenanceRequest = assetMaintenanceRequests[idx];
         assetMaintenanceRequest.id = _id;
@@ -55,6 +56,7 @@ contract AssetMaintenanceRequest {
         assetMaintenanceRequest.note = _note;
         assetMaintenanceRequest.status = _status;
         assetMaintenanceRequest.userId = _userId;
+        assetMaintenanceRequest.image = _image;
     }
 
     function deleteInstance(string memory _id) public {
