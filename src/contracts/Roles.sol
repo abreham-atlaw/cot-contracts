@@ -7,6 +7,7 @@ contract Roles {
         hr,
         inventory,
         staff,
-        department
+        department,
+        maintainer
     }
 }

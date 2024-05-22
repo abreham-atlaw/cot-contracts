@@ -10,15 +10,16 @@ contract AssetRequest {
         uint status;
         string userId;
         uint departmentStatus;
-        bool is_active; // Add is_active field
+        string rejectionNote;
+        bool is_active;
     }
 
     mapping(string => uint) public idMap;
     AssetRequestStruct[] assetRequests;
     uint assetRequestCount;
 
-    function create(string memory _id, string memory _categoryId, string memory _note, uint _status, string memory _userId, uint _departmentStatus) public {
-        assetRequests.push(AssetRequestStruct(_id, _categoryId, _note, _status, _userId, _departmentStatus, true)); // Set is_active to true on creation
+    function create(string memory _id, string memory _categoryId, string memory _note, uint _status, string memory _userId, uint _departmentStatus, string memory _rejectionNote) public {
+        assetRequests.push(AssetRequestStruct(_id, _categoryId, _note, _status, _userId, _departmentStatus, _rejectionNote, true)); // Set is_active to true on creation
         idMap[_id] = assetRequestCount;
         assetRequestCount++;
     }
@@ -48,7 +49,7 @@ contract AssetRequest {
         return activeAssetRequests;
     }
 
-    function update(string memory _id, string memory _categoryId, string memory _note, uint _status, string memory _userId, uint _departmentStatus) public {
+    function update(string memory _id, string memory _categoryId, string memory _note, uint _status, string memory _userId, uint _departmentStatus, string memory _rejectionNote) public {
         uint idx = idMap[_id];
         AssetRequestStruct storage assetRequest = assetRequests[idx];
         assetRequest.id = _id;
@@ -57,6 +58,7 @@ contract AssetRequest {
         assetRequest.status = _status;
         assetRequest.userId = _userId;
         assetRequest.departmentStatus = _departmentStatus;
+        assetRequest.rejectionNote = _rejectionNote;
     }
 
     function deleteInstance(string memory _id) public {
