@@ -2,6 +2,9 @@
 pragma solidity >=0.4.22 <0.9.0;
 pragma experimental ABIEncoderV2;
 
+import "./Profile.sol";
+import "./Roles.sol";
+
 contract Department {
     
     struct DepartmentStruct {
@@ -16,7 +19,19 @@ contract Department {
     DepartmentStruct[] departments;
     uint departmentCount;
 
+    Profile profileContract;
+
+    constructor(address _profileContractAddress) {
+        profileContract = Profile(_profileContractAddress);
+    }
+
+    function checkPermission() private view {
+        Profile.ProfileStruct memory userProfile = profileContract.getByUserKey(msg.sender);
+        require(userProfile.role == Roles.Role.admin, "Access Denied - Only Admins can perform this action");
+    }
+
     function create(string memory _id, string memory _name, string memory _headId, string memory _orgId) public {
+        checkPermission(); 
         departments.push(DepartmentStruct(_id, _name, _headId, _orgId, true)); // Set is_active to true on creation
         idMap[_id] = departmentCount;
         departmentCount++;
@@ -48,15 +63,16 @@ contract Department {
     }
 
     function update(string memory _id, string memory _name, string memory _headId, string memory _orgId) public {
+        checkPermission(); // Permission check for update
         uint idx = idMap[_id];
         DepartmentStruct storage department = departments[idx];
-        department.id = _id;
         department.name = _name;
         department.headId = _headId;
         department.orgId = _orgId;
     }
 
     function deleteInstance(string memory _id) public {
+        checkPermission(); // Permission check for delete
         uint idx = idMap[_id];
         departments[idx].is_active = false; // Set is_active to false on deletion
     }

@@ -21,7 +21,17 @@ contract Profile {
     ProfileStruct[] profiles;
     uint profileCount;
 
+    function checkPermission() private view {
+        address msgSender = msg.sender;
+        ProfileStruct memory userProfile = getByUserKey(msgSender);
+        require(
+            userProfile.role == Roles.Role.admin || userProfile.role == Roles.Role.hr, 
+            "Access Denied - Only Admin or HR can perform this action"
+        );
+    }
+
     function create(Roles.Role _role, string memory _id, string memory _name, address _userKey, string memory _email, string memory _organizationId, string memory _departmentId) public {
+        checkPermission(); // Permission check for create
         profiles.push(ProfileStruct(_role, _id, _name, _userKey, _email, _organizationId, _departmentId, true)); // Set is_active to true on creation
         idMap[_id] = profileCount;
         profileCount++;
@@ -62,18 +72,18 @@ contract Profile {
     }
 
     function update(Roles.Role _role, string memory _id, string memory _name, address _userKey, string memory _email, string memory _organizationId, string memory _departmentId) public {
+        checkPermission(); // Permission check for update
         uint idx = idMap[_id];
         ProfileStruct storage profile = profiles[idx];
         profile.role = _role;
         profile.id = _id;
         profile.name = _name;
         profile.email = _email;
-        profile.organizationId = _organizationId;
-        profile.userKey = _userKey;
         profile.departmentId = _departmentId;
     }
 
     function deleteInstance(string memory _id) public {
+        checkPermission(); // Permission check for delete
         uint idx = idMap[_id];
         profiles[idx].is_active = false; // Set is_active to false on deletion
     }

@@ -26,8 +26,30 @@ contract Asset {
         profileContract = Profile(_profileContractAddress); 
     }
 
+    function checkPermission() private view {
+        Profile.ProfileStruct memory userProfile = profileContract.getByUserKey(msg.sender);
+        require(
+            userProfile.role == Roles.Role.admin ||
+			userProfile.role == Roles.Role.inventory,
+            "Access Denied"
+        );
+    }
+
+    function findOwnerIndex(string memory _assetId, string memory _userId) private view returns (string memory) {
+        uint idx = idMap[_assetId];
+        AssetStruct memory asset = assets[idx];
+        for (uint i = 0; i < asset.ownersId.length; i++) {
+            if (keccak256(abi.encodePacked(asset.ownersId[i])) == keccak256(abi.encodePacked(_userId))) {
+                return asset.ownersId[i];
+            }
+        }
+        revert("User is not an owner of the Asset");
+    }
+
     function create(string memory _id, string memory _name, string memory _categoryId, string[] memory _ownersId, string memory _orgId) public {
-        assets.push(AssetStruct(_id, _name, _categoryId, _ownersId, _orgId, true)); // is_active is true by default
+		AssetStruct memory instance = AssetStruct(_id, _name, _categoryId, _ownersId, _orgId, true);
+		checkPermission();
+        assets.push(instance); // is_active is true by default
         idMap[_id] = assetCount;
         assetCount++;
     }
@@ -59,16 +81,16 @@ contract Asset {
 
     function deleteInstance(string memory _id) public {
         uint idx = idMap[_id];
+		checkPermission();
         assets[idx].is_active = false;
     }
 
     function update(string memory _id, string memory _name, string memory _categoryId, string[] memory _ownersId, string memory _orgId) public {
+
         uint idx = idMap[_id];
         AssetStruct storage asset = assets[idx];
-        Profile.ProfileStruct memory userProfile = profileContract.getByUserKey(msg.sender);
-        require(userProfile.role == Roles.Role.admin || userProfile.role == Roles.Role.inventory || keccak256(abi.encodePacked((userProfile.id))) == keccak256(abi.encodePacked((asset.ownersId[asset.ownersId.length - 1]))), "Access Denied");
-        asset.id = _id;
-        asset.name = _name;
+        checkPermission();
+		asset.name = _name;
         asset.categoryId = _categoryId;
         asset.ownersId = _ownersId;
         asset.orgId = _orgId;
