@@ -31,7 +31,6 @@ contract Profile {
     }
 
     function create(Roles.Role _role, string memory _id, string memory _name, address _userKey, string memory _email, string memory _organizationId, string memory _departmentId) public {
-        checkPermission(); // Permission check for create
         profiles.push(ProfileStruct(_role, _id, _name, _userKey, _email, _organizationId, _departmentId, true)); // Set is_active to true on creation
         idMap[_id] = profileCount;
         profileCount++;
