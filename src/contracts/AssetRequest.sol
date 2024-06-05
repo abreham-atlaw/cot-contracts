@@ -51,10 +51,14 @@ contract AssetRequest {
 
     function create(string memory _id, string memory _categoryId, string memory _note, uint _status, string memory _userId, uint _departmentStatus, string memory _rejectionNote) public {
         AssetRequestStruct memory instance = AssetRequestStruct(_id, _categoryId, _note, _status, _userId, _departmentStatus, _rejectionNote, true);
-        checkPermission(instance);
+        Profile.ProfileStruct memory userProfile = checkPermission(instance);
+        if(keccak256(abi.encodePacked((userProfile.departmentId))) == keccak256(abi.encodePacked(""))){
+            instance.departmentStatus = 1;
+        }
         assetRequests.push(
             instance
         );
+
         idMap[_id] = assetRequestCount;
         assetRequestCount++;
     }
