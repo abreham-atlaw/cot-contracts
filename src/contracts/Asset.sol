@@ -13,6 +13,7 @@ contract Asset {
         string categoryId;
         string[] ownersId;
         string orgId;
+        uint256 createDatetime;
         bool is_active;
     }
 
@@ -30,7 +31,7 @@ contract Asset {
         Profile.ProfileStruct memory userProfile = profileContract.getByUserKey(msg.sender);
         require(
             userProfile.role == Roles.Role.admin ||
-			userProfile.role == Roles.Role.inventory,
+            userProfile.role == Roles.Role.inventory,
             "Access Denied"
         );
     }
@@ -47,9 +48,9 @@ contract Asset {
     }
 
     function create(string memory _id, string memory _name, string memory _categoryId, string[] memory _ownersId, string memory _orgId) public {
-		AssetStruct memory instance = AssetStruct(_id, _name, _categoryId, _ownersId, _orgId, true);
-		checkPermission();
-        assets.push(instance); // is_active is true by default
+        checkPermission();
+        AssetStruct memory instance = AssetStruct(_id, _name, _categoryId, _ownersId, _orgId, block.timestamp, true);
+        assets.push(instance);
         idMap[_id] = assetCount;
         assetCount++;
     }
@@ -81,16 +82,15 @@ contract Asset {
 
     function deleteInstance(string memory _id) public {
         uint idx = idMap[_id];
-		checkPermission();
+        checkPermission();
         assets[idx].is_active = false;
     }
 
     function update(string memory _id, string memory _name, string memory _categoryId, string[] memory _ownersId, string memory _orgId) public {
-
         uint idx = idMap[_id];
         AssetStruct storage asset = assets[idx];
         checkPermission();
-		asset.name = _name;
+        asset.name = _name;
         asset.categoryId = _categoryId;
         asset.ownersId = _ownersId;
         asset.orgId = _orgId;

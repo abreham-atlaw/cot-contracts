@@ -14,6 +14,7 @@ contract AssetRequest {
         string userId;
         uint departmentStatus;
         string rejectionNote;
+        uint256 createDatetime; // Add createDatetime field
         bool is_active;
     }
 
@@ -41,20 +42,34 @@ contract AssetRequest {
                     keccak256(abi.encodePacked((userProfile.id))) == keccak256(abi.encodePacked(_instance.userId)) &&
                     _instance.departmentStatus == 0
                 )
-
             ),
-
             "Access Denied"
         );
         return userProfile;
     }
 
-    function create(string memory _id, string memory _categoryId, string memory _note, uint _status, string memory _userId, uint _departmentStatus, string memory _rejectionNote) public {
-        AssetRequestStruct memory instance = AssetRequestStruct(_id, _categoryId, _note, _status, _userId, _departmentStatus, _rejectionNote, true);
-        checkPermission(instance);
-        assetRequests.push(
-            instance
+    function create(
+        string memory _id,
+        string memory _categoryId,
+        string memory _note,
+        uint _status,
+        string memory _userId,
+        uint _departmentStatus,
+        string memory _rejectionNote
+    ) public {
+        AssetRequestStruct memory instance = AssetRequestStruct(
+            _id, 
+            _categoryId, 
+            _note, 
+            _status, 
+            _userId, 
+            _departmentStatus, 
+            _rejectionNote, 
+            block.timestamp, // Set creation timestamp
+            true
         );
+        checkPermission(instance);
+        assetRequests.push(instance);
         idMap[_id] = assetRequestCount;
         assetRequestCount++;
     }
@@ -84,7 +99,15 @@ contract AssetRequest {
         return activeAssetRequests;
     }
 
-    function update(string memory _id, string memory _categoryId, string memory _note, uint _status, string memory _userId, uint _departmentStatus, string memory _rejectionNote) public {
+    function update(
+        string memory _id,
+        string memory _categoryId,
+        string memory _note,
+        uint _status,
+        string memory _userId,
+        uint _departmentStatus,
+        string memory _rejectionNote
+    ) public {
         uint idx = idMap[_id];
         AssetRequestStruct storage assetRequest = assetRequests[idx];
         Profile.ProfileStruct memory profile = checkPermission(assetRequest);

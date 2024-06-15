@@ -13,6 +13,7 @@ contract AssetMaintenanceRequest {
         uint status;
         string image;
         string userId;
+        uint256 createDatetime; // Add createDatetime field
         bool is_active;
     }
 
@@ -26,20 +27,17 @@ contract AssetMaintenanceRequest {
         profileContract = Profile(_profileContractAddress);
     }
 
-    function checkPermission(AssetMaintenanceRequestStruct memory _instance) private view returns (Profile.ProfileStruct memory){
+    function checkPermission(AssetMaintenanceRequestStruct memory _instance) private view returns (Profile.ProfileStruct memory) {
         Profile.ProfileStruct memory userProfile = profileContract.getByUserKey(msg.sender);
         require(
             (
-
                 userProfile.role == Roles.Role.admin || 
                 userProfile.role == Roles.Role.maintainer || 
                 (
                     keccak256(abi.encodePacked((userProfile.id))) == keccak256(abi.encodePacked(_instance.userId)) &&
                     _instance.status == 0
                 )
-
             ),
-
             "Access Denied"
         );
         return userProfile;
@@ -52,13 +50,19 @@ contract AssetMaintenanceRequest {
         uint _status,
         string memory _image,
         string memory _userId
-    ) public{
-
-        AssetMaintenanceRequestStruct memory instance = AssetMaintenanceRequestStruct(_id, _assetId, _note, _status, _image, _userId, true);
-        checkPermission(instance);
-        assetMaintenanceRequests.push(
-            instance
+    ) public {
+        AssetMaintenanceRequestStruct memory instance = AssetMaintenanceRequestStruct(
+            _id, 
+            _assetId, 
+            _note, 
+            _status, 
+            _image, 
+            _userId, 
+            block.timestamp, // Set creation timestamp
+            true
         );
+        checkPermission(instance);
+        assetMaintenanceRequests.push(instance);
         idMap[_id] = assetMaintenanceRequestCount;
         assetMaintenanceRequestCount++;
     }
@@ -95,20 +99,18 @@ contract AssetMaintenanceRequest {
         uint _status,
         string memory _image,
         string memory _userId
-    ) public{
-
+    ) public {
         uint idx = idMap[_id];
         AssetMaintenanceRequestStruct storage instance = assetMaintenanceRequests[idx];
         Profile.ProfileStruct memory profile = checkPermission(instance);
-        if(keccak256(abi.encodePacked((profile.id))) == keccak256(abi.encodePacked(instance.userId))){
+        if (keccak256(abi.encodePacked((profile.id))) == keccak256(abi.encodePacked(instance.userId))) {
             instance.assetId = _assetId;
             instance.note = _note;
             instance.image = _image;
         }
-        if(profile.role == Roles.Role.admin || profile.role == Roles.Role.maintainer){
+        if (profile.role == Roles.Role.admin || profile.role == Roles.Role.maintainer) {
             instance.status = _status;
         }
-        
     }
 
     function deleteInstance(string memory _id) public {

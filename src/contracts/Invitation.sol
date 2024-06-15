@@ -12,6 +12,7 @@ contract Invitation {
         string to;
         string orgId;
         string name;
+        uint256 createDatetime; // Add createDatetime field
         bool is_active;
     }
 
@@ -69,7 +70,7 @@ contract Invitation {
     }
 
     function create(uint _role, string memory _id, string memory _to, string memory _orgId, string memory _name) public {
-        InvitationStruct memory instance = InvitationStruct(_role, _id, _to, _orgId, _name, true);
+        InvitationStruct memory instance = InvitationStruct(_role, _id, _to, _orgId, _name, block.timestamp, true); // Set createDatetime
         checkPermission(instance);
         invitations.push(instance);
         idMap[_id] = invitationCount;

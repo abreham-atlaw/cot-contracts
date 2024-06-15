@@ -12,6 +12,7 @@ contract Department {
         string name;
         string headId;
         string orgId;
+        uint256 createDatetime; // Add createDatetime field
         bool is_active; // Add is_active field
     }
 
@@ -32,7 +33,7 @@ contract Department {
 
     function create(string memory _id, string memory _name, string memory _headId, string memory _orgId) public {
         checkPermission(); 
-        departments.push(DepartmentStruct(_id, _name, _headId, _orgId, true)); // Set is_active to true on creation
+        departments.push(DepartmentStruct(_id, _name, _headId, _orgId, block.timestamp, true)); // Set is_active to true and record creation timestamp
         idMap[_id] = departmentCount;
         departmentCount++;
     }
